@@ -1,0 +1,538 @@
+Script started on Tue 08 Mar 2016 09:26:30 PM EST
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ pwd
+/home/students/FALL15/brookecantwell/CISC2000/lab3
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ cat polygon.h
+/*
+ * Polygon Class definition
+ *
+ * polygon.h
+ *
+ * Brooke Cantwell
+ *
+ * 6 March 2016
+ *
+ * Class definition for the polygon class
+ *
+ */
+
+#ifndef POLYGON_H
+#define POLYGON_H
+
+class Polygon {
+	public:
+		//constructors
+		Polygon( );
+		Polygon(int, int);
+		Polygon(int, int, int, int);
+		//destructor
+		~Polygon( );
+		//accessor method for numPolygons
+		static int getNumPolygons( );
+		static int getMaxPolygons( );
+		//set methods
+		bool setLength(int);
+		bool setWidth(int);
+		//input methods
+		void inputLength( );
+		void inputWidth( );
+		//method to draw polygons
+		void drawShape( );
+		//methods for statistics
+		void calculateStatistics( );
+		void displayStatistics( );
+		void calculateAverages( );
+		static void displayAverages( );
+	private:
+		static const int MAX_POLYGONS = 25;
+		static int numPolygons;
+		int length;
+		int width;
+		int perimeter;
+		int area;
+		const int MIN;
+		const int MAX;
+		static const int DEFAULT_MIN = 0;
+		static const int DEFAULT_MAX = 10;
+		//static variables for class level calculations
+		static double averageArea, areaSum;
+		static double averagePerimeter, perimeterSum;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ cat polygon.cpp
+/*
+ * Polygon Class Implementation
+ *
+ * polygon.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 6 March 2016
+ *
+ * Implementation for the polygon class.
+ */
+
+
+#include "polygon.h"
+#include <iomanip>
+#include <iostream>
+
+using namespace std;
+
+//initialize static variables
+int Polygon::numPolygons = 0;
+double Polygon::averageArea = 0;
+double Polygon::averagePerimeter = 0;
+double Polygon::areaSum = 0;
+double Polygon::perimeterSum = 0;
+
+//constructors
+
+Polygon::Polygon( ):MIN(DEFAULT_MIN), MAX(DEFAULT_MAX) {
+	length = width = 0;
+	perimeter = (length * 2) + (width * 2);
+	area = length * width;
+	numPolygons++;
+}
+
+Polygon::Polygon(int min, int max):MIN(min), MAX(max) {
+	length = width = 0;
+	perimeter = (length * 2) + (width * 2);
+	area = length * width;
+	numPolygons++;
+}
+
+Polygon::Polygon(int min, int max, int l, int w):MIN(min), MAX(max) {
+	length = l;
+	width = w;
+	perimeter = (length * 2) + (width * 2);
+	area = length * width;
+	numPolygons++;
+}
+
+//destructor
+Polygon::~Polygon( ) {
+	//subtract the area of the destructed polygon from the areaSum
+	//and the perimeter from the perimeterSum
+	areaSum -= area;
+	perimeterSum -= perimeter;
+	//decrement the number of polygons
+	numPolygons--;
+}
+
+//mutator methods, set methods
+
+bool Polygon::setWidth(int w) {
+	bool setValue = false;
+
+	if (w >= MIN && w <= MAX) {
+		width = w;
+		setValue = true;
+	}
+
+	return(setValue);
+}
+
+bool Polygon::setLength(int l) {
+	bool setValue = false;
+
+	if (l >= MIN && l <= MAX) {
+		length = l;
+		setValue = true;
+	}
+
+	return(setValue);
+}
+
+//mutator methods, accept user input
+
+void Polygon::inputLength( ) {
+	do {
+		cout << "Input length: ";
+		cin >> length;
+	} while (!setLength(length));
+}
+
+void Polygon::inputWidth( ) {
+	do {
+		cout << "Input width: ";
+		cin >> width;
+	} while(!setWidth(width));
+}
+
+//accessor functions
+
+int Polygon::getNumPolygons( ) {
+	return(numPolygons);
+}
+
+int Polygon::getMaxPolygons( ) {
+	return(MAX_POLYGONS);
+}
+
+//calculateStatistics, calculates the area and perimeter of the polygon
+void Polygon::calculateStatistics( ) {
+
+	perimeter = (length * 2) + (width * 2);
+	area = length * width;
+
+}
+
+
+//displayStatistics, displays length, width, area, and perimeter
+void Polygon::displayStatistics( ) {
+	cout << "Length: " << length << endl;
+	cout << "Width: " << width << endl;
+	cout << "Perimeter: " << perimeter << endl;
+	cout << "Area: " << area << endl;
+}
+
+//drawShape, draws polygon with specifies length and width
+void Polygon::drawShape( ) {
+	for (int l = 1; l <= length; l++) {
+		for (int w = 1; w <= width; w++) {
+			if (w == 1 || w == width || l == 1 || l == length) 
+				cout << '*';				
+			else
+				cout << ' ';
+		}
+	cout << endl;
+	}
+}
+
+//calculateAverages, updates the average statistics
+void Polygon::calculateAverages( ) {
+	areaSum += area;
+	perimeterSum += perimeter;
+	averageArea = areaSum / numPolygons;
+	averagePerimeter = perimeterSum / numPolygons;
+
+}
+
+//displayAverages, displays average statistics
+void Polygon::displayAverages( ) {
+	cout << endl << "AVERAGES" << endl;
+	cout << "Average area: " << setprecision(2) << averageArea << endl;
+	cout << "Average perimeter: " << averagePerimeter << endl << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ cat driver.cpp
+/*
+ * Lab #3 - Polygon Lab
+ *
+ * driver.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 6 March 2016
+ *
+ * Driver for the polygon class, displays a menu
+ * and allows the user to build a new polygon, 
+ * print an existing polygon, display statistics,
+ * or delete an existing polygon.
+ */
+
+#include <iostream>
+#include "polygon.h"
+#include <iomanip>
+
+using namespace std;
+
+main( ) {
+	//local variables
+	int menuOption;	
+	int index = 0;
+	int draw;
+	int deleteNum;
+
+	//array of pointers
+	Polygon *ptrP[Polygon::getMaxPolygons( )];
+
+	//function declarations
+	int displayMenu( );
+	void buildPolygon(Polygon*[ ], int);
+	void displayStatistics(Polygon*[ ]);
+	void drawPolygons(Polygon*[ ]);
+
+	//keep displaying the menu until the user quits
+	while (menuOption != 5) {
+
+		//display the menu and return the user's choice
+		menuOption = displayMenu( );
+
+		switch (menuOption) {
+			case 1:
+				//build a new polygon
+				ptrP[index] = new Polygon;				
+				//use pointer to input length, width, and draw shape
+				//with the buildPolygon function
+				buildPolygon(ptrP, index);
+				//increment the index of the array of pointers
+				index++;
+				break;
+			case 2:
+				cout << "Choose polygon to draw: ";
+				cin >> draw;
+				draw--;
+				//draw shape
+				(*ptrP[draw]).drawShape( );
+				break;
+			case 3:
+				//calculate the statistics for every polygon constructed
+				for (int i = 0; i < index; i++) {
+					cout << "Polygon #" << i + 1 << endl;
+					(*ptrP[i]).displayStatistics( );
+				}
+				Polygon::displayAverages( );	
+				break;
+			case 4:
+				cout << "Enter polygon to be deleted: ";
+				cin >> deleteNum;
+				
+				//decrement deleteNum so it can be used as an index for
+				//the array of pointers
+				deleteNum--;
+
+				//delete object that has been dynamically allocated
+				delete ptrP[deleteNum];
+		
+				index--;
+				
+				//move the elements in the array one over starting from
+				//the deleted element
+				for (int i = deleteNum; i < index; i++) {
+					ptrP[i] = ptrP[i+1];
+				}
+
+		
+				break;
+			case 5:
+				cout << "OK!" << endl << endl;
+				break;
+			default:
+				cout << "Error, please choose a valid menu option." << endl;
+				continue;
+		}
+	}
+
+	//display the final statistics
+	displayStatistics(ptrP);
+
+	//draw all of the polygons the user created
+	drawPolygons(ptrP);		
+}
+
+//displayMenu function, displays the menu to the user
+int displayMenu( ) {
+
+	int menuOption;
+
+	cout << "MENU: " << endl;
+	cout << "1. Build a new polygon" << endl;
+	cout << "2. Draw an existing polygon" << endl;
+	cout << "3. Show summary statistics" << endl;
+	cout << "4. Delete an existing object" << endl;
+	cout << "5. Quit" << endl;
+
+	cout << "Option: ";
+	cin >> menuOption;
+
+	return(menuOption);
+
+}
+
+//buildPolygon, uses the inputLength, inputWidth, and drawShape methods of the polygon class
+void buildPolygon (Polygon *ptrP[ ], int index) {
+	//get length and width from user input
+	ptrP[index] -> inputLength( );
+	ptrP[index] -> inputWidth( );
+	//draw polygon
+	ptrP[index] -> drawShape( );
+	//update statistics and averages
+	ptrP[index] -> calculateStatistics( );
+	ptrP[index] -> calculateAverages( );
+}
+
+//displayStatistics, displays statistics for every constructed polygon and averages
+void displayStatistics(Polygon *ptrP[ ]) {
+
+	int max;
+
+	max = Polygon::getNumPolygons( );
+
+	for (int i = 0; i < max; i++) {
+		cout << "Polygon #" << i + 1 << endl;
+		ptrP[i] -> displayStatistics( );
+	}
+
+	//call static method displayAverages( );		
+	Polygon::displayAverages( );
+}
+
+//drawPolygons, draws all of the polygons created by the user that have not been deleted
+void drawPolygons(Polygon *ptrP[ ]) {
+
+	int numPolygons = Polygon::getNumPolygons( );
+
+	for (int i = 0; i < numPolygons; i++) {
+		cout << "Polygon #" << i + 1 << endl;
+		ptrP[i] -> drawShape( );
+	}
+}
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ g++ polygon.cpp driver.cpp
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ ./a.out
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 1
+Input length: 3
+Input width: 3
+***
+* *
+***
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 1
+Input length: 5
+Input width: 5
+*****
+*   *
+*   *
+*   *
+*****
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 1
+Input length: 7
+Input width: 7
+*******
+*     *
+*     *
+*     *
+*     *
+*     *
+*******
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 4
+Enter polygon to be deleted: 2
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 2
+Choose polygon to draw: 1
+***
+* *
+***
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 3
+Polygon #1
+Length: 3
+Width: 3
+Perimeter: 12
+Area: 9
+Polygon #2
+Length: 7
+Width: 7
+Perimeter: 28
+Area: 49
+
+AVERAGES
+Average area: 28
+Average perimeter: 20
+
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 1
+Input length: 9
+Input width: 9
+*********
+*       *
+*       *
+*       *
+*       *
+*       *
+*       *
+*       *
+*********
+MENU: 
+1. Build a new polygon
+2. Draw an existing polygon
+3. Show summary statistics
+4. Delete an existing object
+5. Quit
+Option: 5
+OK!
+
+Polygon #1
+Length: 3
+Width: 3
+Perimeter: 12
+Area: 9
+Polygon #2
+Length: 7
+Width: 7
+Perimeter: 28
+Area: 49
+Polygon #3
+Length: 9
+Width: 9
+Perimeter: 36
+Area: 81
+
+AVERAGES
+Average area: 46
+Average perimeter: 25
+
+Polygon #1
+***
+* *
+***
+Polygon #2
+*******
+*     *
+*     *
+*     *
+*     *
+*     *
+*******
+Polygon #3
+*********
+*       *
+*       *
+*       *
+*       *
+*       *
+*       *
+*       *
+*********
+]0;brookecantwell@storm:~/CISC2000/lab3[brookecantwell@storm lab3]$ exit
+exit
+
+Script done on Tue 08 Mar 2016 09:27:29 PM EST

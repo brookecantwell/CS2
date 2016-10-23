@@ -1,0 +1,511 @@
+Script started on Wed 09 Mar 2016 02:31:26 PM EST
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ pwd
+/home/students/FALL15/brookecantwell/CISC2000/midterm
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat name.h
+/*
+ *
+ * Name Class
+ *
+ * name.h
+ *
+ * Brooke Cantwell
+ * 
+ * 20 February 2016
+ *
+ * Header file for the name class
+ *
+ */
+
+#ifndef NAME_H
+#define NAME_H
+
+#include <iostream>
+using namespace std;
+
+class Name {
+	public:
+		//constructors
+		Name( );
+		Name(string, char, string);
+		//mutator methods
+		void setName(string, char, string);
+		void inputName( );
+		//accessor methods
+		string getFirstName( ) const;
+		char getMiddleInitial( ) const;
+		string getLastName( ) const;
+		//display method
+		void display( );
+
+
+	private:
+		string fname, lname;
+		char mi;
+
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat name.cpp
+/*
+ * Implementation of Name class
+ *
+ * name.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Method definitions for name class
+ *
+ */
+
+
+
+#include "name.h"
+
+//default constructor
+Name::Name( ) {
+	fname = "First";
+	mi = 'I';
+	lname = "Last";
+}
+
+//constructor for name
+Name::Name(string f, char m, string l) {
+	fname = f;
+	mi = m;
+	lname = l;
+}
+
+//mutator method
+void Name::setName(string f, char m, string l) {
+	fname = f;
+	mi = m;
+	lname = l;
+}
+
+//populate data with user input
+void Name::inputName( ) {
+	cout << "Input name in the format First MI Last: ";
+	cin >> fname >> mi >> lname;
+}
+
+//accessor method for first name
+string Name::getFirstName( ) const {
+	return(fname);
+}
+
+//accessor method for middle initial
+char Name::getMiddleInitial( ) const {
+	return(mi);
+}
+
+//accessor method for last name
+string Name::getLastName( ) const {
+	return(lname);
+}
+
+//display method
+void Name::display( ) {
+	cout << "Name: " << fname << ' ' << mi << ' ' << lname;
+}
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat date.h
+/*
+ * Date Class
+ *
+ * date.h
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Header file for the date class
+ *
+ */
+
+#ifndef DATE_H
+#define DATE_H
+
+#include <iostream>
+
+using namespace std;
+
+class Date {
+	public:
+		//constructors
+		Date( );
+		Date(int, int, int);
+		//mutator methods
+		bool setDate(int, int, int);	
+		void inputDate( );
+		//accessor methods
+		int getMonth( );
+		int getDay( );
+		int getYear( );
+		//display
+		void display( ) const;
+	private:
+		int month, day, year;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat date.cpp
+/*
+ * Implementation for Date class
+ *
+ * date.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Methods for date class
+ *
+ */
+
+#include "date.h"
+
+//default constructor
+Date::Date( ) {
+	month = day = year = 0;
+}
+
+//constructor to set all data members
+Date::Date(int m, int d, int y) {
+	month = m;
+	day = d;
+	year = y;
+}
+
+//setDate, checks for valid date
+bool Date::setDate(int m, int d, int y ) {
+	bool setValue = false;
+	int maxDays;
+
+	//determine the maximum amount of days in every month
+	switch(month) {
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			maxDays = 31;
+			break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			maxDays = 30;
+			break;
+		case 2:
+			maxDays = 28;
+	}
+
+	if (month >= 1 && month <= 12 && day > 0 && day <= maxDays) { 
+		setValue = true;
+		month = m;
+		day = d;
+		year = y;
+	}
+	
+	return(setValue);
+
+}
+
+//inputDate, gets user input and checks validity
+void Date::inputDate( ) {
+	char dummyChar;
+
+	do {
+		cout << "Input date in the form mm/dd/yyyy: ";
+		cin >> month >> dummyChar >> day >> dummyChar >> year;
+	} while (!setDate(month, day, year));
+}
+
+//getMonth, accessor method for month data member
+int Date::getMonth( ) {
+	return(month);
+}
+
+
+//getDay, accessor method for day data member
+int Date::getDay( ) {
+	return(day);
+}
+
+//getYear, accessor method for year data member
+int Date::getYear( ) {
+	return(year);
+}
+
+//display function
+void Date::display( ) const {
+	cout << month << '/' << day << '/' << year;
+}
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat savingsAccount.h
+/*
+ * Savings Account Class Definition
+ *
+ * savingsAccount.h
+ *
+ * Brooke Cantwell
+ *
+ * 9 March 2016
+ *
+ * Class definition for the savings account class.
+ *
+ */
+
+#ifndef SAVINGSACCOUNT_H
+#define SAVINGSACCOUNT_H
+
+//check
+#include "date.h"
+#include "name.h"
+
+class SavingsAccount {
+
+	public:
+		//constructors
+		SavingsAccount( );
+		SavingsAccount(string, char, string, double, int);
+		//mutator methods for static data members
+		static void inputActiveOfficer( );
+		static void inputCurrentDate( );
+		static void inputInterestRate( );
+		//mutator methods continued
+		void inputCustomerName( );
+		void inputStartingBalance( );
+		//calculate interest
+		double calculateInterest( );		
+		//mutator method for annualInterestRate
+		static void modifyInterestRate(double);
+		void updateSavingsBalance( );
+		//accessor methods
+		static double getInterestRate( );
+		//display method
+		void display( );
+	private:
+		Name accountOfficer;
+		Date oDate;
+		static double annualInterestRate;
+		Name customer;
+		int accountNumber;
+		double savingsBalance;
+		static Name activeOfficer;
+		static Date cDate;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat savingsAccount.cpp
+/*
+ * Savings Account Class Implementation
+ *
+ * savingsAccount.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 9 March 2016
+ *
+ * Methods and implementation for the savings
+ * account class.
+ *
+ */
+
+#include "date.h"
+#include "name.h"
+#include "savingsAccount.h"
+#include <iomanip>
+
+using namespace std;
+
+Name SavingsAccount::activeOfficer;
+double SavingsAccount::annualInterestRate;
+Date SavingsAccount::cDate;
+
+//default constructor
+SavingsAccount::SavingsAccount( ) {
+	annualInterestRate = 0;
+	accountNumber = 0;
+	savingsBalance = 0;
+	accountOfficer = activeOfficer;
+	oDate = cDate;
+}
+
+//constructor to initialize customer, savingsBalance, and accountNumber
+SavingsAccount::SavingsAccount(string f, char m, string l, double b, int a) {
+	customer.setName(f, m, l);
+	savingsBalance = b;
+	accountNumber = a;
+	accountOfficer = activeOfficer;
+	oDate = cDate;
+}
+
+//mutator method inputActiveOfficer, accepts user input for activeOfficer
+void SavingsAccount::inputActiveOfficer( ) {
+
+	cout << "Current Active Officer, ";
+	activeOfficer.inputName( );
+
+}
+
+//mutator method inputCurrentDate, accepts user input for current date
+void SavingsAccount::inputCurrentDate( ) {	
+
+	cout << "Current Date, ";
+	cDate.inputDate( );
+
+}
+
+//mutator method inputInterestRate, accepts user input for static data member
+//annualInterestRate
+void SavingsAccount::inputInterestRate( ) {
+	double i;
+
+	cout << "Current Annual Interest Rate: ";
+	cin >> annualInterestRate;
+}
+
+//mutator method, input customer name
+void SavingsAccount::inputCustomerName( ) {
+	cout << "Customer Name, ";
+	customer.inputName( );
+}
+
+//mutator method, input starting balance
+void SavingsAccount::inputStartingBalance( ) {
+	cout << "Enter Starting Balance: ";
+	cin >> savingsBalance;
+}
+
+//calculateInterest, calculates and returns monthly interest
+double SavingsAccount::calculateInterest( ) {
+	double interest;
+
+	interest = savingsBalance * (annualInterestRate/12.0);
+
+	return(interest);
+}
+
+//modifyInterestRate, modifies the static data member interest rate
+void SavingsAccount::modifyInterestRate(double i) {
+	annualInterestRate = i;
+	annualInterestRate /= 100;
+}
+
+//updateSavingsBalance, calculates the monthly interest rate by invoking
+//calculateInterest and updates the savings balance data member with
+//the interest results
+void SavingsAccount::updateSavingsBalance( ) {
+	double interest;
+
+	interest = calculateInterest( );
+
+	savingsBalance += interest;
+}
+
+//accessor methods
+
+double SavingsAccount::getInterestRate( ) {
+	return(annualInterestRate);
+}
+
+//display method
+
+void SavingsAccount::display( ) {
+	accountOfficer.display( );
+	cout << '\t';
+	oDate.display( );
+	cout << '\t';
+	customer.display( );
+	cout << '\t';
+	cout << std::fixed << setprecision(2) << '$' << savingsBalance;
+}
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ cat driver.cpp
+/*
+ * Midterm Driver
+ *
+ * driver.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 9 March 2016
+ *
+ * Driver to test the Savings Account class.
+ *
+ */
+
+#include <iostream>
+#include "savingsAccount.h"
+#include <iomanip>
+
+using namespace std;
+
+main( ) {
+
+	//declare local variables
+	int MAX_ACCOUNTS = 3;
+	int numAccounts = 0;
+
+	void display(SavingsAccount *[ ], const int);
+
+	//call SavingsAccount static functions to input static data members
+	SavingsAccount::inputActiveOfficer( );
+	SavingsAccount::inputCurrentDate( );
+	SavingsAccount::inputInterestRate( );
+	cout << endl;
+
+	//array of SavingsAccount pointers
+	SavingsAccount *ptrS[MAX_ACCOUNTS];
+
+	//enter account information
+	for (int i = 0; i < MAX_ACCOUNTS; i++) {
+		ptrS[i] = new SavingsAccount;
+		(*ptrS[i]).inputCustomerName( );
+		(*ptrS[i]).inputStartingBalance( );
+		cout << endl;
+		numAccounts++;
+	}		
+
+	display(ptrS, MAX_ACCOUNTS);
+}
+
+//function to calculate interest, update the savings balance, and display the information
+//for all of the account entered
+void display(SavingsAccount *ptrS[ ], const int MAX_ACCOUNTS) {
+	cout << "Account Officer\t\tDate Opened\tCustomer\t\tCurrent Balance" << endl;
+
+	for (int i = 0; i < MAX_ACCOUNTS; i++) {
+		ptrS[i] -> calculateInterest( );
+		ptrS[i] -> updateSavingsBalance( );
+		ptrS[i] -> display( );
+		delete ptrS[i];
+		ptrS[i] = NULL;
+		cout << endl;
+	}
+}
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ g++ name.cpp date.cpp savingsAccount.cpp driver.cpp
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ ./a.out
+Current Active Officer, Input name in the format First MI Last: John D Doe
+Current Date, Input date in the form mm/dd/yyyy: 3/9/2016
+Current Annual Interest Rate: 5
+
+Customer Name, Input name in the format First MI Last: Brooke E Cantwell
+Enter Starting Balance: 5000
+
+Customer Name, Input name in the format First MI Last: Austin D Cantwell
+Enter Starting Balance: 10000
+
+Customer Name, Input name in the format First MI Last: Chris D Cantwell
+Enter Starting Balance: 15000
+
+Account Officer		Date Opened	Customer		Current Balance
+Name: John D Doe	3/9/2016	Name: Brooke E Cantwell	$5000.00
+Name: John D Doe	3/9/2016	Name: Austin D Cantwell	$10000.00
+Name: John D Doe	3/9/2016	Name: Chris D Cantwell	$15000.00
+]0;brookecantwell@storm:~/CISC2000/midterm[brookecantwell@storm midterm]$ exit
+exit
+
+Script done on Wed 09 Mar 2016 02:32:35 PM EST

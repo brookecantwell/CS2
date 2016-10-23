@@ -1,0 +1,697 @@
+Script started on Tue 03 May 2016 03:22:56 PM EDT
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ c[Kow[K[Kpwd
+/home/students/FALL15/brookecantwell/CISC2000/lab6
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat customer.h
+/*
+ * Header file for the Customer class
+ *
+ * customer.h
+ *
+ * Brooke Cantwell
+ *
+ * 27 April 2016
+ *
+ * Header for for the customer class.
+ *
+ */
+
+#include <iostream>
+
+using namespace std;
+
+#ifndef CUSTOMER_H
+#define CUSTOMER_H
+
+class Customer {
+	//global functions
+	friend istream& operator>>(istream&, Customer&);
+	friend ostream& operator<<(ostream&, Customer);	
+
+	public:
+		//constructors
+		Customer( );
+		Customer(string, string);
+		Customer(string, string, string, string, string, int);
+		//mutator methods
+		void setName(string, string);
+		void setAddress(string, string, string, int);
+		//accessor methods
+		string getfName( ) const;
+		string getlName( ) const;
+		string getAddress( ) const;
+		string getCity( ) const;
+		string getState( ) const;
+		int getZipCode( ) const;
+	private:
+		string fname, lname;
+		string address, city, state;
+		int zipCode;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat customer.cpp
+/*
+ * Customer Class Implementation
+ *
+ * customer.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 27 April 2016
+ *
+ * Methods and functions for the customer class.
+ *
+ */
+
+#include <iostream>
+#include "customer.h"
+
+using namespace std;
+
+//global functions
+istream& operator>>(istream&in, Customer&c) {
+
+	cout << "Input name in the format First Last: ";
+        in >> c.fname >> c.lname;
+
+        cout << "Enter the street address: ";
+        in >> c.address;
+
+        cout << "Enter the city: ";
+        in >> c.city;
+
+        cout << "Enter the state: ";
+        in >> c.state;
+
+        cout << "Enter the zip code: ";
+        in >> c.zipCode;
+
+
+	return(in);
+}
+
+ostream& operator<<(ostream&out, Customer c) {
+	out << "Name: " << c.fname << ' ' << c.lname << endl;
+	out << "Address:" << endl;
+	out << c.address << endl;
+	out << c.city << ", " << c.state << ' ' << c.zipCode << endl;
+
+	return(out);
+}
+
+//constructors
+Customer::Customer( ) {
+	fname = "First";
+	lname = "Last";
+	address = "Address";
+	city = "City";
+	state = "State";
+	zipCode = 0;
+}
+
+Customer::Customer(string f, string l) {
+	fname = f;
+	lname = l;
+}
+
+Customer::Customer(string f, string l, string a, string c, string s, int z) {
+	fname = f;
+	lname = l;
+	address = a;
+	city = c;
+	state = s;
+	zipCode = z;
+}
+
+//mutator methods
+
+void Customer::setName(string f, string l) {
+	fname = f;
+	lname = l;
+}
+
+void Customer::setAddress(string a, string c, string s, int z) {
+	address = a;
+	city = c;
+	state = s;
+	zipCode = z;
+}
+
+//accessor methods
+string Customer::getfName( ) const{
+	return(fname);
+}
+
+string Customer::getlName( ) const{
+	return(lname);
+}
+
+string Customer::getAddress( ) const{
+	return(address);
+}
+
+string Customer::getCity( ) const{
+	return(city);
+}
+
+string Customer::getState( ) const{
+	return(state);
+}
+
+int Customer::getZipCode( ) const{
+	return(zipCode);
+}
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat package.h
+/*
+ * Package (Base Class) Header File
+ *
+ * package.h
+ *
+ * Brooke Cantwell
+ *
+ * 27 April 2016
+ *
+ * Header file for the base package class.
+ *
+ */
+
+#include <iostream>
+#include "customer.h"
+
+using namespace std;
+
+#ifndef PACKAGE_H
+#define PACKAGE_H
+
+class Package {
+	public:
+		Package( );
+		Package(float, float);
+		//mutator methods
+		bool setPackageWeight(float);
+		bool setCostPerOunce(float);
+		//parameters are fname, lname, address, city, state, zipCode
+		void setSender(string, string, string, string, string, int);
+		void setRecipient(string, string, string, string, string, int);
+		void inputSender( );
+		void inputRecipient( );
+		void inputCostPerOunce( );
+		void inputPackageWeight( );
+		//accessor methods
+		float getPackageWeight( ) const;
+		float getCostPerOunce( ) const;
+		float calculateCost( ) const;
+		//print method
+		virtual void print( ) const;
+	protected:
+		Customer sender, recipient;
+		float packageWeight;
+		float costPerOunce;
+	private:
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat package.cpp
+/*
+ * Package Base Class Implementation
+ *
+ * package.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 27 April 2016
+ *
+ * Methods and functions for the package
+ * base class.
+ */
+
+#include <iostream>
+#include "package.h"
+
+using namespace std;
+
+//constructors
+
+Package::Package( ) {
+	packageWeight = 0;
+	costPerOunce = 0;
+}
+
+Package::Package(float w, float c) {
+	packageWeight = w;
+	costPerOunce = c;
+}
+
+//setPackageWeight, checks to make sure the weight isn't negative,
+//and if the weight is valid, assign it to the data member
+bool Package::setPackageWeight(float w) {
+	bool valid = true;
+
+	if (w > 0)
+		packageWeight = w;
+	else {
+		valid = false;
+		cout << "Invaid package weight." << endl;
+	}
+
+	return(valid);
+}
+
+//mutator methods for Customer data members
+void Package::setSender(string f, string l, string a, string c, string s, int z){
+	sender.setName(f, l);
+	sender.setAddress(a, c, s, z);
+}
+
+void Package::setRecipient(string f, string l, string a, string c, string s, int z) {
+	recipient.setName(f, l);
+	recipient.setAddress(a, c, s, z);
+}
+
+void Package::inputSender( ) {
+	cout << "Sender:" << endl;
+	cin >> sender;
+}
+
+void Package::inputRecipient( ) {
+	cout << "Recipient:" << endl;
+	cin >> recipient;
+}
+
+//setCostPerOunce, checks to make sure the cost isn't negative,
+//and if the cost is valid, assign it to the data members
+bool Package::setCostPerOunce(float c) {
+	bool valid = true;
+
+	if (c > 0)
+		costPerOunce = c;
+	else {
+		valid = false;
+		cout << "Invalid cost per ounce." << endl;
+	}
+
+	return(valid);
+}
+
+void Package::inputCostPerOunce( ) {
+
+	do {
+		cout << "Enter cost per ounce: ";
+		cin >> costPerOunce;
+	} while (!setCostPerOunce(costPerOunce));
+}
+
+void Package::inputPackageWeight( ) {
+	
+	do {
+		cout << "Enter package weight: ";
+		cin >> packageWeight;
+	} while (!setPackageWeight(packageWeight));
+}
+
+//accessor methods
+float Package::getPackageWeight( ) const {
+	return(packageWeight);
+}
+
+float Package::getCostPerOunce( ) const{
+	return(costPerOunce);
+}
+
+//calculateCost, calculates the cost of shipping the package by
+//multiplying the weight in ounces by the cost per ounce
+float Package::calculateCost( ) const{
+	float cost;
+
+	cost = packageWeight * costPerOunce;
+
+	return(cost);
+}
+
+//print method
+void Package::print( ) const {
+	cout << "Sender:" << endl;
+	cout << sender << endl;
+	cout << "Recipient:" << endl;
+	cout << recipient << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat overNight.h
+/*
+ * Header File for Overnight Package Derived Class
+ *
+ * overnight.h
+ *
+ * Brooke Cantwell
+ *
+ * 1 May 2016
+ *
+ * Header file for the derived class overnight package.
+ *
+ */
+
+#include <iostream>
+#include "package.h"
+
+using namespace std;
+
+#ifndef OVERNIGHT_H
+#define OVERNIGHT_H
+
+class OverNightPackage: public Package {
+	//global functions
+	
+	public:
+		//constructors
+		OverNightPackage( );
+		OverNightPackage(int);
+		//mutator methods
+		//accessor methods
+		static int getNumOvernight( );
+		float calculateCost( );
+		float getTotal( );
+		virtual void print( );
+		static float totalOverNight;
+	private:
+		float fee, total;
+		static int numOvernight;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat overnight.cpp
+/*
+ * Implementation of Overnight Class
+ *
+ * overnight.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 1 May 2016
+ *
+ * Methods and global functions for the overnight
+ * package class.
+ */
+
+#include <iomanip>
+#include <iostream>
+#include "overNight.h"
+
+using namespace std;
+
+int OverNightPackage::numOvernight = 0;
+float OverNightPackage::totalOverNight = 0.00;
+
+OverNightPackage::OverNightPackage( ) {
+	fee = 0;
+	numOvernight++;
+}
+
+OverNightPackage::OverNightPackage(int f) {
+	fee = f;
+	numOvernight++;
+}
+
+float OverNightPackage::calculateCost( ) {
+	
+	total = Package::calculateCost( );
+	total += fee;
+
+	totalOverNight += total;	
+
+	return(total);
+}
+
+float OverNightPackage::getTotal( ) {
+	return(total);
+}
+
+//accessor methods
+
+int OverNightPackage::getNumOvernight( ) {
+	return(numOvernight);
+}
+
+void OverNightPackage::print( ){
+	Package::print( );
+	cout << std::fixed << setprecision(2) << "Fee: $" << fee << endl;
+	cout << setprecision(2) << "Cost: $" << total << endl << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat twoday.h
+/*
+ * Two Day Package Class Definition
+ *
+ * twoday.h
+ *
+ * Brooke Cantwell
+ *
+ * 1 May 2016
+ *
+ * Definition for the derived class Two
+ * Day Package.
+ *
+ */
+
+#include <iostream>
+#include "package.h"
+
+using namespace std;
+
+#ifndef TWODAY_H
+#define TWODAY_H
+
+class TwoDayPackage: public Package {
+	public:
+		//constructors
+		TwoDayPackage( );
+		TwoDayPackage(float);
+		//accessor methods
+		static int getNumTwoDay( );
+		float calculateCost( );
+		float getTotal( );
+		virtual void print( );
+		static float totalTwoDay;
+	private:
+		float fee, total;
+		static int numTwoDay;
+
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat twoday.cpp
+/*
+ * Two Day Package Class Implementation
+ *
+ * twoday.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 1 May 2016
+ *
+ * Methods and functions for the derived
+ * two day package class.
+ */
+
+#include <iomanip>
+#include <iostream>
+#include "twoday.h"
+
+using namespace std;
+
+int TwoDayPackage::numTwoDay = 0;
+float TwoDayPackage::totalTwoDay = 0;
+
+//constructors
+
+TwoDayPackage::TwoDayPackage( ) {
+	fee = 0;
+	numTwoDay++;
+}
+
+TwoDayPackage::TwoDayPackage(float f) {
+	fee = f;
+	numTwoDay++;
+}
+
+float TwoDayPackage::calculateCost( ) {
+
+	total = Package::calculateCost( );
+	total += fee;
+
+	totalTwoDay += total;
+}
+
+//accessor methods
+
+float TwoDayPackage::getTotal( ) {
+	return(total);
+}
+
+int TwoDayPackage::getNumTwoDay( ) {
+	return(numTwoDay);
+}
+
+void TwoDayPackage::print( ) {
+	Package::print( );
+	cout << std::fixed << setprecision(2) << "Fee: $" << fee << endl;
+	cout << setprecision(2) << "Cost: $" << total << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ cat driver.cpp
+/*
+ * Lab #6 - Driver
+ *
+ * driver.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 27 April 2016
+ *
+ * Driver for the package inheritance / polymorphism lab
+ *
+ */
+
+#include <iostream>
+#include <iomanip>
+#include "customer.h"
+#include "package.h"
+#include "overNight.h"
+#include "twoday.h"
+
+using namespace std;
+
+template <typename T>
+void testPackage(T package) {
+	package.inputSender( );
+	package.inputRecipient( );	
+	package.inputPackageWeight( );
+	package.inputCostPerOunce( );
+	package.calculateCost( );
+
+	package.print( );
+
+}
+
+main( ) {
+	const int SIZE = 100;
+	TwoDayPackage *TwoDayPackages[SIZE];
+	OverNightPackage *OverNightPackages[SIZE];
+	int index2 = 0, indexON = 0;
+	int option;
+	float total2Day, totalON;
+
+	do {
+
+		cout << "Which type of package would you like to send?" << endl;
+		cout << "1. Overnight" << endl;
+		cout << "2. Two Day" << endl;
+		cout << "3. Quit" << endl;
+		cout << "Enter option: " << endl;
+		cin >> option;
+
+		switch (option) {
+			case 1:
+				OverNightPackages[indexON] = new OverNightPackage(6);
+				testPackage(*OverNightPackages[indexON]);
+				indexON++;
+				break;
+			case 2:
+				TwoDayPackages[index2] = new TwoDayPackage(3);
+				testPackage(*TwoDayPackages[index2]);
+				index2++;
+				break;
+		}
+	} while (option != 3 && index2 <= 100 & indexON <= 100);
+
+
+	cout << setprecision(2) << "Overnight Package Total: " << OverNightPackage::totalOverNight << endl;
+	cout << setprecision(2) << "Two Day Package Total: " << TwoDayPackage::totalTwoDay << endl;
+
+	cout << "Overnight Packages: " << indexON << endl;
+	cout << "Two Day Packages: " << index2 << endl;
+}
+
+
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ g++ s[Kcustomer.cpp package.cpp overnight.cpp twoday.cpp dirv [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[Kriv er.cpp
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ ./a.out
+Which type of package would you like to send?
+1. Overnight
+2. Two Day
+3. Quit
+Enter option: 
+1
+Sender:
+Input name in the format First Last: Brooke Cantwell
+Enter the street address: 155W60th
+Enter the city: NY
+Enter the state: NY
+Enter the zip code: 10023
+Recipient:
+Input name in the format First Last: Chris Cantwell
+Enter the street address: 29DawnLn
+Enter the city: Rivve  erside
+Enter the state: CT
+Enter the zip code: 06878
+Enter package weight: 10
+Enter cost per ounce: .5
+Sender:
+Name: Brooke Cantwell
+Address:
+155W60th
+NY, NY 10023
+
+Recipient:
+Name: Chris Cantwell
+Address:
+29DawnLn
+Riverside, CT 6878
+
+Fee: $6.00
+Cost: $11.00
+
+Which type of package would you like to send?
+1. Overnight
+2. Two Day
+3. Quit
+Enter option: 
+2
+Sender:
+Input name in the format First Last: Brooke Cantwell
+Enter the street address: 155W60th
+Enter the city: NY
+Enter the state: NY
+Enter the zip code: 10023
+Recipient:
+Input name in the format First Last: Austin Cantwell
+Enter the street address: 29DawnLn
+Enter the city: Riverside
+Enter the state: CT
+Enter the zip code: 06878
+Enter package weight: 12
+Enter cost per ounce: .6
+Sender:
+Name: Brooke Cantwell
+Address:
+155W60th
+NY, NY 10023
+
+Recipient:
+Name: Austin Cantwell
+Address:
+29DawnLn
+Riverside, CT 6878
+
+Fee: $3.00
+Cost: $10.20
+Which type of package would you like to send?
+1. Overnight
+2. Two Day
+3. Quit
+Enter option: 
+3
+Overnight Package Total: 11.00
+Two Day Package Total: 10.20
+Overnight Packages: 1
+Two Day Packages: 1
+]0;brookecantwell@storm:~/CISC2000/lab6[brookecantwell@storm lab6]$ exit
+exit
+
+Script done on Tue 03 May 2016 03:25:05 PM EDT

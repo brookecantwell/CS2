@@ -1,0 +1,658 @@
+Script started on Wed 13 Apr 2016 01:40:03 AM EDT
+]0;brookecantwell@storm:~/CISC2000/lab4[brookecantwell@storm lab4]$ cat set.h
+/*
+ * Set Class Definition
+ *
+ * set.h
+ *
+ * Brooke Cantwell
+ *
+ * 6 April 2016
+ *
+ * Definition for the Set class
+ */
+
+#ifndef SET_H
+#define SET_H
+
+#include <iostream>
+
+using namespace std;
+
+class Set {
+	//global functions
+	friend istream& operator>>(istream&, Set&);
+	friend ostream& operator<<(ostream&, const Set&); 
+
+	public:
+		//constructors and destructors
+		Set( );
+		Set(int);
+		Set(int[ ], int, char);
+		Set(const Set&);
+		~Set( );
+		//element, searches for element
+		bool element(int) const;
+		//order set, orders the set
+		Set orderSet(Set&);
+		//operator overload methods
+		const Set& operator= (const Set&);
+		bool operator== (const Set&s) const;
+		bool operator!=(const Set&s) const;
+		//+ operator overload method that adds elements to the set
+		void operator+(int);
+		// - operator overload method that deletes an element
+		bool operator-(int);
+		//+ operator overload method that unions two sets
+		Set operator+(const Set&s) const;
+		//operator overload method for set intersection
+		Set operator^(const Set&s) const;
+		//operator overload method for set difference
+		Set operator-(const Set&s) const;
+		//mutator method for set name
+		void setSetName(char);
+		void inputSetName( );
+		//accessor method for set name
+		char getSetName( );
+	private:
+		int *set;
+		int pSize;
+		int fSize;
+		int numElements;
+		char name;
+		static const int DEFAULT_SIZE = 5;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab4[brookecantwell@storm lab4]$ cat set.cpp
+/*
+ * Set Class Implementation
+ *
+ * set.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 10 April 2016
+ *
+ * Methods and functions for the Set class.
+ */
+
+#include <iostream>
+#include "set.h"
+
+using namespace std;
+
+//global functions
+istream& operator>>(istream&in, Set&s) {
+
+	int newSize;
+	const int SENTINAL = -999;
+
+	if (s.set == NULL) {
+		cout << "You are trying to populate an empty set, enter new size here: ";
+		cin >> newSize;
+		
+		if (newSize > 0) {
+			s.set = new int[newSize];
+			s.pSize = newSize;
+		}
+	}
+
+	if (s.set != NULL) { //check to make sure s isn't null anymore
+		cout << "Enter an integer for the maximum number of integers in your set. You can stop at any time, or add or delete new elements through the menu." << endl;
+		cout << "Maximum number of elements: ";
+		cin>> newSize;
+		s.pSize = newSize;	
+		cout << "Enter integers to populate the set or -999 to stop:" << endl;
+		for (int i = 0; i < s.pSize; i++) {
+			in >> s.set[i];
+			if (s.set[i] == SENTINAL)
+				break;
+			else
+				s.fSize++;
+		}
+	}
+		
+/*
+		//if the user isn't done inputting numbers
+		if (s.fSize == s.pSize && s.set[s.pSize] != -999) {
+			while (s.fSize == s.pSize && s.set[s.pSize] != -999) {
+				cout << "Not Done" << endl;
+				int addNum;
+				while (addNum != -999) {
+					cin >> addNum;
+					s + addNum;
+					s.fSize++;
+				}
+				continue;
+			}
+		}
+*/	
+
+	return(in);
+}
+
+ostream& operator<<(ostream&out, const Set&s) {
+	out << s.name << " = ";
+
+	out << "{ ";
+
+	for (int i = 0; i < s.fSize; i++) {
+		out << s.set[i] << " ";
+	}
+
+	out << '}' << endl;
+
+	return(out);
+}
+
+//default constructor
+Set::Set( ){
+	set = new int[DEFAULT_SIZE];
+	pSize = DEFAULT_SIZE;
+	fSize = 0;
+	numElements = 0;
+	name = ' ';
+}
+
+Set::Set(int s) { 
+	set = new int[s];
+	pSize = s;
+	fSize = 0;
+	numElements = s;
+}
+
+Set::Set(int sa[ ], int s, char n) {
+	set = sa;
+	pSize = s;
+	fSize = 0;
+	name = n;
+}
+
+//copy constructor
+Set::Set(const Set&s) {
+
+	fSize = s.fSize;
+	pSize = s.pSize;
+
+	//allocate memory of size pSize
+	set = new int[pSize];
+
+	//copy all elemets of s.set to set
+	for (int i = 0; i < pSize; i++) {
+		set[i] = s.set[i];
+	}
+}
+
+//destructor
+Set::~Set( ) {
+	if (set != NULL) {
+		delete [ ] set;
+		set = NULL;
+	}
+}
+
+//assignment operator
+const Set& Set::operator= (const Set&right) {
+	if (&right != this) {
+		if (pSize < right.fSize) {
+			delete [ ]set;
+			set = NULL;
+			set = new int[right.fSize];
+			//check that set is not null
+			//if (set == NULL)
+				//exit
+			pSize = right.fSize;
+		}
+
+		for (int i = 0; i < pSize; i++) {
+			set[i] = right.set[i];
+			fSize++;
+		}
+	}
+
+	return(*this);
+}
+
+//equality operator
+bool Set::operator==(const Set&s) const {
+	bool isEqual = true;
+
+	if (fSize == s.fSize) {
+		for (int i = 0; i < fSize; i++) {
+			if (set[i] != s.set[i]) {
+				isEqual = false;
+				break;
+			}
+		}
+	}
+
+	return(isEqual);
+}
+
+//inequality operator
+bool Set::operator!= (const Set&s) const {
+	bool unEqual;
+
+	if (*this == s)
+		unEqual = false;
+	else
+		unEqual = true;
+
+	return(unEqual);
+}
+
+//element - searches for an element in a set
+bool Set::element(int e) const {
+	bool inSet = false;
+
+	for (int i = 0; i < pSize; i++) {
+		if (set[i] == e) {
+			inSet = true;
+			break;
+		}
+	}
+
+	return(inSet);
+}
+
+
+//add element (+ operator)
+void Set::operator+(int e) {
+	bool inSet = false;
+	bool error = false;
+	Set temp;	
+
+	inSet = (*this).element(e);
+
+	//if the element is not already in the set
+	if (inSet == false) {
+		//if fSize < pSize (room for new element)
+		if (fSize < pSize) {
+			//increment fill size
+			fSize++;
+			//set the last element in the array to e
+			set[fSize - 1] = e;
+		}
+		//if there is no room for the new element
+		else {
+			//create a temporary object and set it equal to *this
+			temp = *this;
+			//delete the array set is pointing to
+			delete [ ]set;
+			set = NULL;
+			//allocate new memory (twice the physical size)
+			set = new int[pSize*2];
+
+			if (set == NULL) {
+				//if the set is still null, set f.Size to
+				//to error code -999 and check in main 
+				//program for errors
+				(*this).fSize = -999;
+				cout << "set = NULL" << endl;
+				//quit the program
+			}
+			else {
+				for (int i = 0; i < fSize; i++) {
+					//reset array to contents of temp
+					set[i] = temp.set[i];
+				}
+				//increase the fill size by 1
+				fSize++;
+				//set the last element in the array to e
+				set[fSize - 1] = e;
+			}
+		}
+
+	}
+
+}
+
+//operator overload method to delete an element from a set
+bool Set::operator-(int e) {
+	bool hasElement;
+	int position;
+
+	if ((*this).element(e)) {
+		hasElement = true;
+
+		for (int i = 0; i < fSize; i++) {
+			if (set[i] == e)
+			position = i;
+		}		
+
+		for (int j = position; j < fSize; j++)
+			set[j] = set[j+1];
+
+		fSize--;
+	}
+	else
+		hasElement = false;
+
+	return(hasElement);
+
+}
+
+//set union operator
+Set Set::operator+ (const Set&s) const {
+
+	//create newSet using the copy constructor
+	Set newSet = *this;
+
+	//add the elements from the second set into newSet
+	for (int j = 0; j < s.fSize; j++) {
+		newSet + s.set[j];
+	}
+
+	return(newSet);
+}		
+
+
+//set intersection operator
+Set Set::operator^ (const Set&s) const {
+	bool inBoth = false;
+	int add;	
+
+	//create an empty set to store the elements in if they
+	//appear in both sets
+	Set newSet;
+
+	for (int i = 0; i < fSize; i++) {
+		add = set[i];
+
+		//check if the element is in both sets
+		if ((*this).element(add) && s.element(add))
+			inBoth = true;
+		else
+			inBoth = false;
+
+		if (inBoth == true) {
+			newSet + add;
+			newSet.fSize++;
+		}
+		
+	}
+
+	return(newSet);
+}
+
+//set difference: overloaded method for the - operator
+Set Set::operator- (const Set&s) const {
+	Set newSet;
+	int deleteElement;
+	bool difference;
+
+	for (int i = 0; i < fSize; i++) {
+		deleteElement = set[i];
+		//if an element is in the first set, and not in the second set
+		//add the element to newSet;
+		if ((*this).element(deleteElement) && !s.element(deleteElement))
+			difference = true;
+		else
+			difference = false;
+		
+		if (difference) {
+			newSet + deleteElement;
+			newSet.fSize++;
+		}
+	}
+
+	return(newSet);
+}
+
+//mutator method for set name
+void Set::setSetName(char n) {
+	name = n;
+}
+
+//method to input set name from user input
+void Set::inputSetName( ) {
+	cout << "Input set name (single character): ";
+	cin >> name;
+
+}
+
+//accessor method for set name
+char Set::getSetName( ) {
+	return(name);
+}		
+]0;brookecantwell@storm:~/CISC2000/lab4[brookecantwell@storm lab4]$ cat driver.cpp
+/* Driver
+ *
+ */
+	
+#include <iostream>
+#include "set.h"
+
+using namespace std;
+
+main( ) {
+
+/*	
+	Set set1(5);
+	Set set2(5);
+
+	cin >> set1;
+	cout << set1;
+
+	cin >> set2;
+	cout << set2;
+
+	Set set3;
+	cout << "Set Union: ";
+	set3 = set1 + set2;
+	cout << set3;
+*/
+
+	const int MAX_SETS = 26;
+	Set *pSet[MAX_SETS];
+	const int SENTINAL = -999;
+	int menuOption;
+	int numSets = 0;
+	int index = 0;
+	char name;
+	int checkName;
+	int addToSet, addElement;
+	int deleteFromSet, deleteElement;
+	int deleteSet;
+	char deleteSetName, addToSetName, deleteFromSetName;
+	char op1, operation, op2;
+	int setPosition1, setPosition2;
+	int checkOp1, checkOp2;
+	char newSetName;
+
+	int setNametoNumber(Set *[ ], char, int);
+	Set parseOperation(Set *[ ], char, char, int&, char&, int&, int);
+
+/*
+	cout << "TEST" << endl;
+
+	Set set1, set2;
+
+	cout << "set1" << endl;
+	cin >> set1;
+
+	cout << "set2" << endl;
+	cin >> set2;
+
+	cout << "set1 + set2" << endl;
+	Set set3;
+
+	set3 = set1 + set2;
+
+	cout << set3;
+
+	cout << "Test copy constructor: " << endl;
+
+	Set set4(set1);
+
+	cout << "set4: " << set4;
+*/
+
+	cout << "Set Class" << endl << endl;
+
+	do {
+		//display menu
+		cout << "Menu" << endl;
+		cout << "1. Create a new set" << endl;
+		cout << "2. Delete an existing set" << endl;
+		cout << "3. Add an element to an existing set" << endl;
+		cout << "4. Delete an element from an existing set" << endl;
+		cout << "5. Apply a set operation on an existing set" << endl;
+		cout << "6. Display all created sets" << endl;
+		cout << "Choose an option, or -999 to quit: ";
+		//user input for menuOption
+		cin >> menuOption;
+		
+		//switch on menuOption
+		switch(menuOption) {
+			case 1:
+				//create a new set
+				pSet[index] = new Set;
+				numSets++;
+				cout << "Enter the set name (single character only): ";
+				cin >> name;
+				//check to see if a set with that name already exists
+				checkName = setNametoNumber(pSet, name, numSets);
+				//if the function doesn't return the sentinal value, tell
+				//the user they have to pick a new name
+				if (checkName != SENTINAL) {
+					cout << "You already have a set with that name. To modify the elements, use the add or delete element menu options, to delete the set, use the delete menu option." << endl;
+				}
+				else {
+					(*pSet[index]).setSetName(name);	
+					cin >> *pSet[index];
+					cout << *pSet[index];
+					index++;
+				}
+				break;
+			case 2:
+				//delete an existing set
+				cout << "Enter the name of the set you would like to delete: ";
+				cin >> deleteSetName;
+				deleteSet = setNametoNumber(pSet, deleteSetName, numSets);
+				//if the function returns -999, alert the user that the set doesn't exist
+				if (deleteSet == SENTINAL) {
+					cout << "A set with that name has not been created." << endl;
+				}
+				else {
+					delete pSet[deleteSet];
+					pSet[deleteSet] = NULL;
+					numSets--;
+				}
+				break;
+			case 3:
+				//add an element to an existing set
+				cout << "Enter the name of the set you would like to add an element to: ";
+				cin >> addToSetName;
+				addToSet = setNametoNumber(pSet, addToSetName, numSets);
+				//if the function returns -999, alert the user that the set doesn't exist
+				if (deleteSet == SENTINAL)
+					cout << "A set with that name has not been created." << endl;
+				else {
+					cout << "Enter the element you would like to add: ";
+					cin >> addElement;
+					*pSet[addToSet] + addElement;
+					cout << *pSet[addToSet];
+				}
+				break;
+			case 4:
+				//delete an element from an existing set
+				cout << "Enter the name of the set you would like to delete an element from: ";
+				cin >> deleteFromSetName;
+				deleteFromSet = setNametoNumber(pSet, deleteFromSetName, numSets);
+				//if the function returns -999, alert the user that the set doesn't exist
+				if (deleteFromSet == SENTINAL)
+					cout << "A set with that name has not been created." << endl;
+				else {
+					cout << *pSet[deleteFromSet];
+					cout << "Enter the element you would like to delete: ";
+					cin >> deleteElement;
+					*pSet[deleteFromSet] - deleteElement;
+				}
+				break;
+			case 5:
+				//preform a set operation on an existing set
+				cout << "Enter the set operation you are trying to perform." << endl;
+				cout << "Operation include + (union), ^ (intersection), and - (difference)" << endl;
+				cin >> op1 >> operation >> op2;
+				//check to make sure both sets already exist
+				checkOp1 = setNametoNumber(pSet, op1, numSets);
+				checkOp2 = setNametoNumber(pSet, op2, numSets);
+				//alert the user if 1 or both don't exist
+				if (checkOp1 == SENTINAL || checkOp2 == SENTINAL)
+					cout << "One or both of these sets do not exist. To see existing sets, choose option 6 on the menu." << endl;
+			
+				//if both sets exist
+				else {
+					//store the new set returned from the parseOperation function
+					//in the array
+					cout << "Assign a name (one character) to the set resulting from the operation: ";
+					cin >> newSetName;
+					pSet[index] = new Set;
+					*pSet[index] = parseOperation(pSet, op1, op2, setPosition1, operation, setPosition2, numSets);
+					(*pSet[index]).setSetName(newSetName);
+					//increment numSets
+					cout << *pSet[index];
+					numSets++;
+				}
+				break;
+			case 6:
+				//display all existing sets
+				for (int i = 0; i < numSets; i++) 
+					cout << *pSet[i];
+				cout << endl;
+				break;
+		}
+	
+	} while (menuOption != SENTINAL);	
+
+	cout << "Created Sets:" << endl;
+
+	for (int i = 0; i < numSets; i++) { 
+		cout << *pSet[i];
+	}
+
+}
+
+int setNametoNumber(Set *pSet[ ], char setName, int numSets) {
+
+	int position = -999;	
+
+	for (int i = 0; i < numSets; i++) {
+		if ((*pSet[i]).getSetName( ) == setName) {
+			position = i;
+			break;
+		}
+	}
+	
+	return(position);
+}
+
+Set parseOperation (Set *pSet[ ], char op1, char op2, int&setPosition1, char&operation, int&setPosition2, int numSets) {
+	Set newSet;	
+
+	int setNametoNumber(Set *[ ], char, int);
+
+	setPosition1 = setNametoNumber(pSet, op1, numSets);
+	setPosition2 = setNametoNumber(pSet, op2, numSets);
+
+	switch(operation) {
+		case '+':
+			newSet = *pSet[setPosition1] + *pSet[setPosition2];							break;
+		case '^':
+			newSet = *pSet[setPosition1] ^ *pSet[setPosition2];
+			break;
+		case '-':
+			newSet = *pSet[setPosition1] - *pSet[setPosition2];
+			break;
+		default:
+			cout << "Unrecognized operator." << endl;
+	}
+
+	return(newSet);
+}
+]0;brookecantwell@storm:~/CISC2000/lab4[brookecantwell@storm lab4]$ exit
+exit
+
+Script done on Wed 13 Apr 2016 01:40:19 AM EDT

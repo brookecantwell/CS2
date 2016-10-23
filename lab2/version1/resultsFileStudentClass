@@ -1,0 +1,727 @@
+Script started on Mon 22 Feb 2016 01:52:20 PM EST
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ pwd
+/home/students/FALL15/brookecantwell/CISC2000/lab2/version1
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat date.h
+/*
+ * Date Class
+ *
+ * date.h
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Header file for the date class
+ *
+ */
+
+#ifndef DATE_H
+#define DATE_H
+
+#include <iostream>
+
+using namespace std;
+
+class Date {
+	public:
+		//constructors
+		Date( );
+		Date(int, int, int);
+		//mutator methods
+		bool setDate(int, int, int);	
+		void inputDate( );
+		//accessor methods
+		int getMonth( );
+		int getDay( );
+		int getYear( );
+		//display
+		void display( ) const;
+	private:
+		int month, day, year;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat date.cpp
+/*
+ * Implementation for Date class
+ *
+ * date.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Methods for date class
+ *
+ */
+
+#include "date.h"
+
+//default constructor
+Date::Date( ) {
+	month = day = year = 0;
+}
+
+//constructor to set all data members
+Date::Date(int m, int d, int y) {
+	month = m;
+	day = d;
+	year = y;
+}
+
+//setDate, checks for valid date
+bool Date::setDate(int m, int d, int y ) {
+	bool setValue;
+	int maxDays;
+
+	//determine the maximum amount of days in every month
+	switch(month) {
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			maxDays = 31;
+			break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			maxDays = 30;
+			break;
+		case 2:
+			maxDays = 28;
+	}
+
+	if (month >= 1 && month <= 12 && day > 0 && day <= maxDays)
+		setValue = true;
+	else
+		setValue = false;
+
+	if (setValue == true) {
+		month = m;
+		day = d;
+		year = y;
+	}
+	
+	return(setValue);
+
+}
+
+//inputDate, gets user input and checks validity
+void Date::inputDate( ) {
+	char dummyChar;
+
+	do {
+		cout << "Input date in the form mm/dd/yyyy: ";
+		cin >> month >> dummyChar >> day >> dummyChar >> year;
+	} while (!setDate(month, day, year));
+}
+
+//getMonth, accessor method for month data member
+int Date::getMonth( ) {
+	return(month);
+}
+
+
+//getDay, accessor method for day data member
+int Date::getDay( ) {
+	return(day);
+}
+
+//getYear, accessor method for year data member
+int Date::getYear( ) {
+	return(year);
+}
+
+//display function
+void Date::display( ) const {
+	cout << month << '/' << day << '/' << year << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat name.h
+/*
+ *
+ * Name Class
+ *
+ * name.h
+ *
+ * Brooke Cantwell
+ * 
+ * 20 February 2016
+ *
+ * Header file for the name class
+ *
+ */
+
+#ifndef NAME_H
+#define NAME_H
+
+#include <iostream>
+using namespace std;
+
+class Name {
+	public:
+		//constructors
+		Name( );
+		Name(string, char, string);
+		//mutator methods
+		void setName(string, char, string);
+		void inputName( );
+		//accessor methods
+		string getFirstName( ) const;
+		char getMiddleInitial( ) const;
+		string getLastName( ) const;
+		//display method
+		void display( );
+
+
+	private:
+		string fname, lname;
+		char mi;
+
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat name.cpp
+/*
+ * Implementation of Name class
+ *
+ * name.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Method definitions for name class
+ *
+ */
+
+
+
+#include "name.h"
+
+//default constructor
+Name::Name( ) {
+	fname = "First";
+	mi = 'I';
+	lname = "Last";
+}
+
+//constructor for name
+Name::Name(string f, char m, string l) {
+	fname = f;
+	mi = m;
+	lname = l;
+}
+
+//mutator method
+void Name::setName(string f, char m, string l) {
+	fname = f;
+	mi = m;
+	lname = l;
+}
+
+//populate data with user input
+void Name::inputName( ) {
+	cout << "Input name in the format First MI Last: ";
+	cin >> fname >> mi >> lname;
+}
+
+//accessor method for first name
+string Name::getFirstName( ) const {
+	return(fname);
+}
+
+//accessor method for middle initial
+char Name::getMiddleInitial( ) const {
+	return(mi);
+}
+
+//accessor method for last name
+string Name::getLastName( ) const {
+	return(lname);
+}
+
+//display method
+void Name::display( ) {
+	cout << "Name: " << fname << ' ' << mi << ' ' << lname << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat program.h
+/*
+ * Program Class
+ *
+ * program.h
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Header file for the program class
+ *
+ */
+
+#ifndef PROGRAM_H
+#define PROGRAM_H
+
+#include <iostream>
+
+using namespace std;
+
+class Program {
+	public:
+		//constructors
+		Program( );
+		Program(string, string, string, string);
+		//mutator methods
+		bool setCampus(string);
+		bool setDegree(string);
+		bool setMajor(string);
+		bool setMinor(string);
+		//mutator methods with user input
+		void inputCampus_Degree( );
+		void inputMajor_Minor( );
+		//accessor methods
+		string getCampus( );
+		string getDegree( );
+		string getMajor( );
+		string getMinor( );
+		void display( );
+	private:
+		string campus, degree, major, minor;
+
+
+
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat program.cpp
+/*
+ * Program Class Implementation
+ *
+ * program.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Implementation of Program class
+ */
+
+#include "program.h"
+
+//default constructor
+Program::Program( ) {
+	campus = degree = "N/A";
+	major = "UNDECLARED";
+	minor = "NONE";
+}
+
+//constructor for all data members
+Program::Program(string c, string d, string ma, string mi) {
+	campus = c;
+	degree = d;
+	major = ma;
+	minor = mi;
+}
+
+//mutator method for set campus
+bool Program::setCampus(string c) {
+	bool setValue;
+
+	if (c == "RH" || c == "LC" || c == "WC")
+		setValue = true;
+	else
+		setValue = false;
+
+	return(setValue);
+}
+
+//mutator method for set degree
+bool Program::setDegree(string d) {
+	bool setValue;
+	
+	if (d == "BS" || d == "BA")
+		setValue = true;
+	else
+		setValue = false;
+
+	return(setValue);
+
+}
+
+//mutator method for major
+bool Program::setMajor(string ma) {
+	major = ma;
+}
+
+//mutator method for minor
+bool Program::setMinor(string mi) {
+	minor = mi;
+}
+
+//mutator method to set campus and degree with keyboard input
+void Program::inputCampus_Degree( ) {
+	do {
+		cout << "Enter campus (RH, LC, or WC): ";
+		cin >> campus;
+	} while (!setCampus(campus));
+
+	do {
+		cout << "Enter degree (BS/BA): ";
+		cin >> degree;
+	} while (!setDegree(degree));
+}
+
+//mutator method to populate major and minor with user input
+void Program::inputMajor_Minor( ) {
+	cout << "Enter major or UNDECLARED: ";
+	cin >> major;
+	
+	cout << "Enter minor or NONE: ";
+	cin >> minor;
+}
+
+//accessor method for campus
+string Program::getCampus( ) {
+	return(campus);
+}
+
+//accessor method for degree
+string Program::getDegree( ) {
+	return(degree);
+}
+
+//accessor method for major
+string Program::getMajor( ) {
+	return(major);
+}
+
+//accessor method for minor
+string Program::getMinor( ) {
+	return(minor);
+}
+
+//display method
+void Program::display( ) {
+	cout << "Campus: " << campus << endl;
+	cout << "Degree: " << degree << endl;
+	cout << "Major: " << major << endl;
+	cout << "Minor: " << minor << endl;
+}
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat student.h
+/*
+ * Student Class 
+ *
+ * student.h
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Header file for the student class
+ *
+ */
+
+#ifndef STUDENT_H
+#define STUDENT_H
+
+#include "date.h"
+#include "name.h"
+#include "program.h"
+
+class Student {
+	public:
+		//constructors
+		Student( );
+		Student(Name, Date, Program, char, int);
+		//mutator methods
+		//methods to set data members with specific values
+		void setName(string, char, string);
+		void setDOB(int, int, int);
+		void setProgram(string, string, string, string);
+		bool setGender(char);
+		void setStudentID(int);
+		//mutator methods to populate with user input
+		void inputName( );
+		void inputDate( );
+		void inputProgram( );
+		void inputGender( );
+		void inputStudentID( );
+		void inputAll( );
+		//display method
+		void displayInfo( );
+	private:
+		int studentID;
+		Name name;
+		Date dob;
+		char gender;
+		Program program;
+};
+
+#endif
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat student.cpp
+/*
+ * Implementation of Student class
+ *
+ * student.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Method definitions for student class
+ *
+ */
+
+#include "student.h"
+
+//default constructor, uses default constructors for name, date, and program, and 
+//sets default values for student ID and gender
+Student::Student( ) {
+	Name( );
+	Date( );
+	Program( );
+	studentID = 0;
+	gender = ' ';
+}
+
+//constructor to instantiate object with name, date, and program
+Student::Student(Name n, Date d, Program p, char g, int ID) {
+	name = n;
+	dob = d;
+	program = p;
+	gender = g;
+	studentID = ID;
+}
+
+//setName method calls name constructor to set student name
+void Student::setName(string f, char m, string l) {
+	Name(f, m, l);
+}
+
+//setDOB calls date constructor to set date of birth
+void Student::setDOB(int m, int d, int y) {
+	Date(m, d, y);
+}
+
+//setProgram calls program constructor to set campus, degree, major, and minor
+void Student::setProgram(string c, string d, string ma, string mi) {
+	Program(c, d, ma, mi);
+}
+
+//setGender sets student gender and validates it as either m or f
+bool Student::setGender(char g) {
+	bool setValue;
+
+	switch(g) {
+		case 'M':
+		case 'm':
+		case 'F':
+		case 'f':
+			setValue = true;
+			break;
+		default:
+			setValue = false;
+	}
+
+	return(setValue);
+}
+
+//setStudentID accepts value for student ID
+void Student::setStudentID(int ID) {
+	studentID = ID;
+}	
+
+//inputName calls input function of name class
+void Student::inputName( ) {
+	name.inputName( );
+}
+
+//inputDate calls input function of date class
+void Student::inputDate( ) {
+	dob.inputDate( );
+}
+
+//input program calls input functions for campus and degree and major and minor
+void Student::inputProgram( ) {
+	program.inputCampus_Degree( );
+	program.inputMajor_Minor( );
+}
+
+//inputStudentID accepts user input for student ID
+void Student::inputStudentID( ) {
+	cout << "Enter student ID: ";
+	cin >> studentID;
+}
+
+//inputGender accepts user input for gender and validates it with setGender
+void Student::inputGender( ) {
+	
+	do {
+		cout << "Enter gender (m/f): ";
+		cin >> gender;
+	} while (!setGender(gender));
+}
+
+//inputAll calls all of the input functions created for each data member
+void Student::inputAll( ) {
+	name.inputName( );
+	dob.inputDate( );
+	program.inputCampus_Degree( );
+	program.inputMajor_Minor( );
+	inputStudentID( );
+	inputGender( );
+
+}
+
+//displayInfo displays all data members of the student class
+void Student::displayInfo( ) {
+	name.display( );
+	cout << "Date of Birth: ";
+	dob.display( );
+	program.display( );
+	cout << "Gender: " << gender << endl;
+	cout << "Student ID: " << studentID << endl;
+} 
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ cat driver.cpp
+/*
+ * Driver - Lab 2 Version 2
+ *
+ * driver.cpp
+ *
+ * Brooke Cantwell
+ *
+ * 20 February 2016
+ *
+ * Simple driver to test name, date, student, and program classes
+ *
+ */
+
+#include "student.h"
+
+main( ) {
+
+	void test(Student&);
+	void display(Student, Student);	
+
+	//instantiate name, birthday, and program	
+	Name sname ("Brooke", 'E', "Cantwell");
+	Date dob (10, 27, 1993);
+	Program sprogram;
+
+	//populate program with user input
+	cout << "Populate program with user input: " << endl;
+	sprogram.inputCampus_Degree( );
+	sprogram.inputMajor_Minor( );
+	
+	//create student object with constructor accepting name, dob, and program as well as gender and student ID
+	cout << "Create object of student: ";
+	Student s1(sname, dob, sprogram, 'F', 12829); 
+
+	//display information for the first instance of the student class
+	s1.displayInfo( );
+
+	//instantiate second instance of student with default constructor
+	cout << endl << "Create second instance of student with default constructor: " << endl;
+	Student s2;
+
+	//call test function on second instance of student class
+	cout << "Call testInput( ) function on the second instance of the student class: " << endl;
+	test(s2);
+
+
+	display(s1,s2);
+
+}
+
+void test(Student&s) {
+
+	cout << "Original contents: " << endl;
+	s.displayInfo( );
+	cout << "Populate with user input using inputAll( ) function: " << endl;
+	s.inputAll( );
+	cout << "Display update contents: " << endl;
+	s.displayInfo( );
+
+}
+
+void display(Student s1, Student s2) {
+	cout << endl << "Display final contents: " << endl;
+	cout << endl << "First instance: " << endl;
+	s1.displayInfo( );
+	cout << endl << "Second Instance: " << endl;
+	s2.displayInfo( );
+}
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ g++ name.cpp date.cpp program.cpp student.cpp d river.cpp -o student
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ ./student
+Populate program with user input: 
+Enter campus (RH, LC, or WC): LC
+Enter degree (BS/BA): BS
+Enter major or UNDECLARED: CISC
+Enter minor or NONE: NONE
+Create object of student: Name: Brooke E Cantwell
+Date of Birth: 10/27/1993
+Campus: LC
+Degree: BS
+Major: CISC
+Minor: NONE
+Gender: F
+Student ID: 12829
+
+Create second instance of student with default constructor: 
+Call testInput( ) function on the second instance of the student class: 
+Original contents: 
+Name: First I Last
+Date of Birth: 0/0/0
+Campus: N/A
+Degree: N/A
+Major: UNDECLARED
+Minor: NONE
+Gender:  
+Student ID: 0
+Populate with user input using inputAll( ) function: 
+Input name in the format First MI Last: John D Doe
+Input date in the form mm/dd/yyyy: 1/1/1990
+Enter campus (RH, LC, or WC): RH
+Enter degree (BS/BA): E BA
+Enter major or UNDECLARED: English
+Enter minor or NONE: NONE
+Enter student ID: 23948
+Enter gender (m/f): M
+Display update contents: 
+Name: John D Doe
+Date of Birth: 1/1/1990
+Campus: RH
+Degree: BA
+Major: English
+Minor: NONE
+Gender: M
+Student ID: 23948
+
+Display final contents: 
+
+First instance: 
+Name: Brooke E Cantwell
+Date of Birth: 10/27/1993
+Campus: LC
+Degree: BS
+Major: CISC
+Minor: NONE
+Gender: F
+Student ID: 12829
+
+Second Instance: 
+Name: John D Doe
+Date of Birth: 1/1/1990
+Campus: RH
+Degree: BA
+Major: English
+Minor: NONE
+Gender: M
+Student ID: 23948
+]0;brookecantwell@storm:~/CISC2000/lab2/version1[brookecantwell@storm version1]$ exit
+exit
+
+Script done on Mon 22 Feb 2016 01:53:37 PM EST

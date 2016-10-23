@@ -1,0 +1,448 @@
+Script started on Mon 08 Feb 2016 06:32:42 PM EST
+]0;brookecantwell@storm:~/CISC2000/calc[brookecantwell@storm calc]$ cat calc.cpp
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+main() {
+
+	//declare local variables
+	int min = 0, max = 10;
+	const int MAX_EQUATIONS = 20;
+	int op1, op, op2;
+	char opChar;
+	int operators = 4;
+	double answer;
+	bool correct;
+	int index = 0;
+	bool repeat;
+	int attempts = 1;
+	int repeatPosition; 
+	int level = 0;
+	int countCorrect = 0;
+	int addition = 0, subtraction = 0, multiplication = 0, division = 0;
+	int additionCorrect = 0, subtractionCorrect = 0, multiplicationCorrect = 0, divisionCorrect = 0;
+	int menuOption;
+	int levels = 4, completedLevels = 1;
+
+	//array declarations
+	int arrayOp1[MAX_EQUATIONS];
+	char arrayOpChar[MAX_EQUATIONS];
+	int arrayOp2[MAX_EQUATIONS];
+	bool arrayCorrect[MAX_EQUATIONS];
+	double additionPercent[levels];
+	double subtractionPercent[levels];
+	double multiplicationPercent[levels];
+	double divisionPercent[levels];
+
+	//function prototypes
+	void generateEquation (int&, int&, int&, char&, const int, const int);
+	void getBounds (int, int&, int&);
+	bool searchArray (int, char, int, int[ ], char[ ], int[ ], bool[ ], int, int&);
+	double displayEquation (int, char, int);
+	bool evaluateEquation (double, int, char, int);
+	void storeEquation (int, char, int, bool, int[ ], char[ ], int[ ], bool[ ], int);
+	int levelPrompt (int&, int&, double[ ], double[ ], double[ ], double[ ]);
+	void levelOptions (int, int&);
+	void statistics (int, int, char[ ], bool[ ], double[ ], double[ ], double[ ], double[ ]);
+	void display (int, int, double[ ], double[ ], double[ ], double[ ]);
+
+	//while the sentinal value hasn't been entered and the user hasn't completed all levels
+	while (answer != -999 && completedLevels <= 4) {
+
+		//get minimum and maximum values depending on level
+		getBounds (level, min, max);
+
+		//create equation
+		generateEquation (op1, op, op2, opChar, max, min);
+		
+		//search arrays for a repeat that hasn't been correctly answered
+		repeat = searchArray (op1, opChar, op2, arrayOp1, arrayOpChar, arrayOp2, arrayCorrect, index, repeatPosition);
+
+		//if the equation is a repeat that has been answered correctly, go to the beginning of the loop
+		if (repeat == true)
+			continue;
+
+		else {		
+			//display the equation and prompt for answer from the user
+			answer = displayEquation (op1, opChar, op2);
+
+			if (answer == -999)
+				break;
+
+			else {	
+				//evaluate the equation
+				correct = evaluateEquation (answer, op1, opChar, op2);
+				if (!correct) {
+					//if the user is incorrect, give 2 more chances to answer
+					do {
+						answer = displayEquation (op1, opChar, op2);
+						correct = evaluateEquation (answer, op1, opChar, op2);
+						attempts++;
+
+					} while (!correct && attempts <= 2);
+				
+					//if after chances the user is still incorrect, alert them and
+					//reset variables
+					if (!correct) {
+						cout << "Max attempts reached." << endl;
+						attempts = 1;
+						countCorrect = 0;
+					}
+				}
+
+				if (correct) 
+					countCorrect++;
+			}
+			
+			//display the menu if the user has answered 10 questions in a row correctly
+			if (countCorrect == 10) {
+				//compute statustucs
+				statistics (index, level, arrayOpChar, arrayCorrect, additionPercent, subtractionPercent, multiplicationPercent, divisionPercent);
+				//display menu and store user answer
+				menuOption = levelPrompt(level, completedLevels, additionPercent, subtractionPercent, multiplicationPercent, divisionPercent);
+				if (menuOption == 4)
+					break;
+				//reset count for correct answers
+				countCorrect = 0;
+			}
+
+		}
+		//store the equation in the array			
+		storeEquation (op1, opChar, op2, correct, arrayOp1, arrayOpChar, arrayOp2, arrayCorrect, index);
+		//increment index
+		index++;
+	
+	}
+		
+
+	//display percentages for all completed levels
+	display (level, completedLevels, additionPercent, subtractionPercent, multiplicationPercent, divisionPercent);
+}
+]0;brookecantwell@storm:~/CISC2000/calc[brookecantwell@storm calc]$ cat calcFunction.cpp
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+
+//function definition for generateEquation, randomly generates 2 operands and operator
+bool generateEquation (int&op1, int&op, int&op2, char&opChar, const int MAX, const int MIN) {
+
+	char convertToOperator (int);
+	int randomize (int, int);
+
+	op1 = randomize (MIN, MAX);
+
+	op2 = randomize (MIN, MAX);	
+
+	op = randomize (0, 4);
+
+	opChar = convertToOperator (op);
+
+
+	if (op2 == 0 && opChar == '/') {
+		while (op2 == 0)
+			op2 = rand() % MAX + MIN;
+	}
+
+}
+
+//function definition for randomize, generates random numbers using max and min values
+int randomize (const int MIN, const int MAX) {
+	
+	static bool firstTime = true;
+	int rNum;
+
+	if (firstTime == true) {
+		srand (time(0) );
+		firstTime = false;
+	}
+
+	rNum = rand() % MAX + MIN;
+	
+	return(rNum);
+
+}
+
+//function definition for convertToOperator, converts random integer to operator character
+char convertToOperator (int op) {
+
+	char opChar;	
+
+	switch(op) {
+		case 0:
+			opChar = '+';
+			break;
+		case 1:
+			opChar = '-';
+			break;
+		case 2:
+			opChar = '*';
+			break;
+		case 3:
+			opChar = '/';
+			break;
+		deafult:
+			cout << "Error in random number generation of operator." << endl;
+	}	
+	
+	return(opChar);
+}
+
+//function definition for getBounds, gets max and min values based on level
+void getBounds (int level, int&min, int&max) {
+
+	switch(level) {
+		case 0:
+			min = 0;
+			max = 10;
+			break;
+		case 1:
+			min = 0;
+			max = 25;
+			break;
+		case 2:
+			min = 10;
+			max = 25;
+			break;
+		case 3:
+			min = -25;
+			max = 25;
+			break;
+	}
+
+}
+
+//function definition for displayEquation, displays the equation and prompts the user for input
+double displayEquation (int op1, char opChar, int op2) {
+
+	double answer;
+
+	cout << "Equation: " << op1 << ' ' << opChar << ' ' << op2 << endl;
+	cout << "Enter answer (or -999 to quit): ";
+	cin >> answer;
+
+	return(answer);
+}
+
+//function definition for evaluateEquation, compares user answer to computed answer
+bool evaluateEquation (double answer, int op1, char opChar, int op2) {
+
+	bool correct;
+	double compAnswer;
+
+	switch (opChar) {
+		case '+':
+			compAnswer = op1 + op2;
+			break;
+		case '-':
+			compAnswer = op1 - op2;
+			break;
+		case '*':
+			compAnswer = op1 * op2;
+			break;
+		case '/':
+			compAnswer = (double)op1 / op2;
+	}
+
+	//give margin for error in the case of division
+	if (opChar == '/') {
+		if (compAnswer - answer < .1 || answer - compAnswer < .1)
+			correct = true;
+	}
+
+	if (compAnswer == answer) {
+		correct = true;
+		cout << "Correct!" << endl;
+	}
+	else {
+		correct = false;
+		cout << "Incorrect!" << endl;
+	}	
+
+	return(correct);
+
+}
+
+//function definition for storeEquation, stores operands, operator, and if the answer is correct into separate arrays
+void storeEquation (int op1, char opChar, int op2, bool correct, int arrayOp1[ ], char arrayOpChar[ ], int arrayOp2[ ], bool arrayCorrect[ ], int index) {
+
+	arrayOp1[index] = op1;
+	arrayOpChar[index] = opChar;
+	arrayOp2[index] = op2;
+	arrayCorrect[index] = correct;
+
+}
+
+//function definition for searchArray, searches the arrays for repeats and returns true if the equation is a repeat with a correct answer
+bool searchArray (int op1, char opChar, int op2, int arrayOp1[ ], char arrayOpChar[ ], int arrayOp2[ ], bool arrayCorrect[ ], int index, int&repeatPosition) {
+
+	bool repeat = false;
+
+	for (int i = 0; i < index; i++) {
+		if (arrayOp1[i] == op1) {
+			if (arrayOpChar[i] == opChar) {
+				if (arrayOp2[i] == op2) {
+					repeat = true;
+					repeatPosition = i;
+				}
+				//if the question was answered incorrectly
+				//set 'repeat' to false
+				if (arrayCorrect[i] == 1)
+					repeat = false;	
+			}
+		}
+	}
+
+	return (repeat);
+}
+
+
+//function definition for levelPrompt, shows menu after the user has completed a level
+int levelPrompt (int&level, int&completedLevels, double additionPercent[ ], double subtractionPercent[ ], double multiplicationPercent[ ], double divisionPercent[ ]) {
+	
+	int menuOption;
+	
+	void displayStatistics (int, double[ ], double[ ], double[ ], double[ ]);
+
+	cout << "Enter menu option: " << endl;
+	cout << "1. Continue at the current level." << endl;
+	cout << "2. Go to the next level." << endl;
+	cout << "3. Display summary statistics for the current level." << endl;
+	cout << "4. Quit." << endl;	
+
+	cin >> menuOption;
+
+	switch (menuOption) {
+		case 1:
+			level = level;
+			break;
+		case 2:
+			level++;
+			completedLevels++;
+			break;
+		case 3:
+			displayStatistics (level, additionPercent, subtractionPercent, multiplicationPercent, divisionPercent);
+			levelPrompt (level, completedLevels, additionPercent, subtractionPercent, multiplicationPercent, divisionPercent);
+			break;
+		case 4:
+			//quit, break is included in main program
+			break;
+	}
+}
+
+//function definition for displayStatistics, used to display the statistics for a certain level if the menu option is chosen
+void displayStatistics (int level, double additionPercent[ ], double subtractionPercent[ ], double multiplicationPercent[ ], double divisionPercent[ ]) {
+
+	        cout << "Addition: ";
+                if (additionPercent[level] > 1)
+                        cout << additionPercent[level] << endl;
+		//if statement prevents empty values from array from being displayed if there were no questions using an operator
+                else
+                        cout << "N/A" << endl;
+
+                cout << "Subtraction: ";
+                if (subtractionPercent[level] > 1)
+                        cout << subtractionPercent[level] << endl;
+                else
+                        cout << "N/A" << endl;
+
+                cout << "Multiplication: ";
+                if (multiplicationPercent[level] > 1)
+                        cout << multiplicationPercent[level] << endl;
+                else
+                        cout << "N/A" << endl;
+
+                cout << "Division: ";
+                if (divisionPercent[level] > 1)
+                        cout << divisionPercent[level] << endl;
+                else
+                        cout << "N/A" << endl;
+}
+
+//function definition for statistics, goes through the array and increments variables that are used to calculate percentage of
+//questions answered correctly for operator, which are then stored in separate arrays
+void statistics (int index, int level, char arrayOpChar[ ], bool arrayCorrect[ ], double additionPercent[ ], double subtractionPercent[ ], double multiplicationPercent[ ], double divisionPercent[ ]) {
+
+	double addition = 0, subtraction = 0, multiplication = 0, division = 0;
+	double additionCorrect = 0, subtractionCorrect = 0, multiplicationCorrect = 0, divisionCorrect = 0;
+
+	for (int i = 0; i < index; i++) {
+		switch(arrayOpChar[i]) {
+			case '+':
+				addition++;
+				if (arrayCorrect[i] == 1)
+					additionCorrect++;
+				break;
+			case '-':
+				subtraction++;
+				if (arrayCorrect[i] == 1)
+					subtractionCorrect++;
+				break;
+			case '*':
+				multiplication++;
+				if (arrayCorrect[i] == 1)
+					multiplicationCorrect++;
+				break;
+			case '/':
+				division++;
+				if (arrayCorrect[i] == 1)
+					divisionCorrect++;
+				break;
+		}
+		
+	
+	}
+
+	//if statements prevent division by zero
+        if (addition > 0)
+                additionPercent[level] = (additionCorrect / addition) * 100;
+        if (subtraction > 0)
+                subtractionPercent[level] = (subtractionCorrect / subtraction) * 100;
+        if (multiplication > 0)
+                multiplicationPercent[level] = (multiplicationCorrect / multiplication) * 100;
+        if (division > 0)
+                divisionPercent[level] = (divisionCorrect / division) * 100;
+
+
+}
+
+//function definition for display, displays the percentage of correctly answered questions by operator for each completed level
+void display (int level, int completedLevels, double additionPercent[ ], double subtractionPercent[ ], double multiplicationPercent[ ], double divisionPercent[ ]) {
+	for (int i = 0; i < completedLevels; i++) {
+		cout << "Level: " << i + 1 << endl;
+
+		cout << "Addition: ";
+		if (additionPercent[i] > 1)
+			cout << additionPercent[i] << endl;
+		else
+			cout << "N/A" << endl;
+	
+		cout << "Subtraction: ";
+		if (subtractionPercent[i] > 1)
+			cout << subtractionPercent[i] << endl;
+		else
+			cout << "N/A" << endl;
+
+		cout << "Multiplication: ";
+		if (multiplicationPercent[i] > 1)
+			cout << multiplicationPercent[i] << endl;
+		else
+			cout << "N/A" << endl;
+		
+		cout << "Division: ";
+		if (divisionPercent[i] > 1)
+			cout << divisionPercent[i] << endl;
+		else
+			cout << "N/A" << endl;
+	}	
+
+}
+]0;brookecantwell@storm:~/CISC2000/calc[brookecantwell@storm calc]$ exit
+exit
+
+Script done on Mon 08 Feb 2016 06:32:55 PM EST
